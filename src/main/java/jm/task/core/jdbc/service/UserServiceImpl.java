@@ -3,15 +3,16 @@ package jm.task.core.jdbc.service;
 import jm.task.core.jdbc.dao.UserDao;
 import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
 import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.util.Util;
 
 import java.util.List;
 
 public class UserServiceImpl implements UserService {
-    private static UserDao userDao  = new UserDaoJDBCImpl();
+    private static UserDao userDao;
 
     public UserServiceImpl() {
+        userDao = new UserDaoJDBCImpl();
     }
-
     public void createUsersTable() {
         userDao.createUsersTable();
     }
@@ -35,10 +36,4 @@ public class UserServiceImpl implements UserService {
     public void cleanUsersTable() {
         userDao.cleanUsersTable();
     }
-
-    @Override
-    public void closeConnection() {
-        userDao.closeConnection();
-    }
-
 }
