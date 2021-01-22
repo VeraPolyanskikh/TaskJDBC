@@ -102,11 +102,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 st.executeUpdate("DELETE FROM user WHERE id="+id );
                 conn.commit();
             }catch(SQLException e) {
-                e.printStackTrace();
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
-                    e2.printStackTrace();
+                   e.addSuppressed(e2);
+                   throw e;
                 }
             }
         }catch(SQLException e) {

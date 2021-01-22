@@ -1,15 +1,21 @@
 package jm.task.core.jdbc.util;
 
-
 import com.mysql.cj.jdbc.MysqlDataSource;
-import jm.task.core.jdbc.dao.UserDao;
-import jm.task.core.jdbc.dao.UserDaoJDBCImpl;
+import jm.task.core.jdbc.model.User;
+import org.hibernate.SessionFactory;
+import org.hibernate.boot.MetadataSources;
+import org.hibernate.boot.registry.StandardServiceRegistry;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.cfg.Environment;
+import org.hibernate.service.ServiceRegistry;
 
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.*;
 
 public class Util{
 
@@ -25,6 +31,8 @@ public class Util{
     private  static final String DB_NAME = "core_task_schema";
 
     private static MysqlDataSource jdbcDataSource;
+    private static StandardServiceRegistry registry;
+    private static SessionFactory sessionFactory;
 
     public Connection getConnection() throws SQLException {
         Connection conn = jdbcDataSource.getConnection();
@@ -46,4 +54,59 @@ public class Util{
 
     }
 
+    public static SessionFactory getSessionFactory() {
+        if (sessionFactory == null) {
+            try {
+
+                Configuration conf = new Configuration();
+                Properties settings = new Properties();
+                settings.put(Environment.DRIVER,"com.mysql.cj.jdbc.Driver");
+                settings.put(Environment.URL,DB_URL);
+                settings.put(Environment.USER,DB_USER);
+                settings.put(Environment.PASS,DB_PASSWORD);
+                settings.put(Environment.SHOW_SQL,"true");
+                settings.put(Environment.AUTO_CLOSE_SESSION,"true");
+                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
+               // settings.put(Environment);
+               // settings.put(Environment);
+                /*
+                StandardServiceRegistryBuilder registryBuilder =
+                        new StandardServiceRegistryBuilder();
+
+                Map<String, String> settings = new HashMap<>();
+                settings.put("connection.provider_class","org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider");
+                settings.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
+                settings.put("hibernate.connection.url", DB_URL);
+                settings.put("hibernate.connection.username", DB_USER);
+                settings.put("hibernate.connection.password", DB_PASSWORD);
+                settings.put("hibernate.show_sql", "true");
+                settings.put("hibernate.hbm2ddl.auto", "update");
+
+                registryBuilder.applySettings(settings);
+                registry = registryBuilder.build();
+                MetadataSources sources = new MetadataSources(registry)
+                        .addAnnotatedClass(User.class);
+
+                sessionFactory = sources.buildMetadata().buildSessionFactory();
+
+                 */
+                conf.setProperties(settings);
+                conf.addAnnotatedClass(User.class);
+                ServiceRegistry serviceRegistry =
+                        new StandardServiceRegistryBuilder().applySettings(settings).build();
+                sessionFactory =  conf.buildSessionFactory(serviceRegistry);
+
+            } catch (Exception e) {
+                System.out.println("SessionFactory creation failed");
+                if (registry != null) {
+                    StandardServiceRegistryBuilder.destroy(registry);
+                }
+            }
+        }
+        return sessionFactory;
+    }
+
+    public static EntityManagerFactory getEnityManagerFactory(){
+        return Persistence.createEntityManagerFactory("org.hibernate.tutorial.jpa");
+    }
 }
