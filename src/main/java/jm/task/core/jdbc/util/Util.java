@@ -3,15 +3,12 @@ package jm.task.core.jdbc.util;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
-import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
 import org.hibernate.service.ServiceRegistry;
 
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.Persistence;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -61,8 +58,8 @@ public class Util{
                 settings.put(Environment.USER,DB_USER);
                 settings.put(Environment.PASS,DB_PASSWORD);
                 //settings.put(Environment.SHOW_SQL,"true");
-                settings.put(Environment.AUTO_CLOSE_SESSION,"true");
-                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
+                settings.put(Environment.AUTO_CLOSE_SESSION,"false");
+                //settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
 
                 conf.setProperties(settings);
                 conf.addAnnotatedClass(User.class);
