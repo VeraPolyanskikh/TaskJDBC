@@ -11,6 +11,8 @@ import org.hibernate.service.ServiceRegistry;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.*;
 
@@ -19,11 +21,9 @@ public class Util{
     private  static final String DB_URL= "jdbc:mysql://localhost:3306/core_task_schema";
     private  static final String DB_USER = "root";
     private  static final String DB_PASSWORD = "Z@mbezi33";
-    private  static final String DB_SERVER_NAME = "localhost";
-    private  static final int DB_PORT_NUMBER = 3306;
-    private  static final String DB_NAME = "core_task_schema";
 
     private static MysqlDataSource jdbcDataSource;
+
     private static StandardServiceRegistry registry;
     private static SessionFactory sessionFactory;
 
@@ -35,15 +35,17 @@ public class Util{
 
     public void  setJDBCSource() throws SQLException, ClassNotFoundException {
 
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        jdbcDataSource = new MysqlDataSource();
-        jdbcDataSource.setURL(DB_URL);
-        jdbcDataSource.setUseSSL( false );
-        jdbcDataSource.setServerTimezone( "UTC" );
-        jdbcDataSource.setUser( DB_USER );
-        jdbcDataSource.setPassword( DB_PASSWORD );
-        jdbcDataSource.setAllowPublicKeyRetrieval(true);
-        jdbcDataSource.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        Optional<Driver> driver = DriverManager.drivers().findFirst();
+        if(driver.isPresent()) {
+
+            jdbcDataSource = new MysqlDataSource();
+            jdbcDataSource.setURL(DB_URL);
+            jdbcDataSource.setUser(DB_USER);
+            jdbcDataSource.setPassword(DB_PASSWORD);
+            jdbcDataSource.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        }else{
+            throw new ClassNotFoundException("No driver found!");
+        }
 
     }
 
@@ -59,7 +61,8 @@ public class Util{
                 settings.put(Environment.PASS,DB_PASSWORD);
                 //settings.put(Environment.SHOW_SQL,"true");
                 settings.put(Environment.AUTO_CLOSE_SESSION,"false");
-                //settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
+                settings.put(Environment.DIALECT,"org.hibernate.dialect.MySQL8Dialect");
+                settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
 
                 conf.setProperties(settings);
                 conf.addAnnotatedClass(User.class);

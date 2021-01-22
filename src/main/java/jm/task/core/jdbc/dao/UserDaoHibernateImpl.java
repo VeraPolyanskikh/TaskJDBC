@@ -1,63 +1,67 @@
 package jm.task.core.jdbc.dao;
-
-
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.*;
-import javax.persistence.*;
+import org.hibernate.query.Query;
 
+import javax.persistence.PersistenceException;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 import java.util.List;
 
 public class UserDaoHibernateImpl implements UserDao {
-     private final SessionFactory sessionFactory = Util.getSessionFactory();
+    private static final SessionFactory sessionFactory = Util.getSessionFactory();
 
     public UserDaoHibernateImpl() {
+
     }
 
     @Override
     public void createUsersTable() {
-
-        //sess.setHibernateFlushMode(FlushMode.COMMIT);
-        Transaction tr  = null;
-        try (Session sess = sessionFactory.openSession()) {
-            tr = sess.beginTransaction();
-            sess.createSQLQuery("""
-            create table  if not exists user(
-                id bigint auto_increment,
-                name varchar(255) not null,
-                lastname varchar(255) not null,
-                age tinyint not null,
-                constraint user_pk
-                    primary key (id)
-             );                     
-            """).executeUpdate();
-            sess.flush();
-            tr.commit();
-        }catch(Exception e) {
-            if(tr != null) {
-                tr.rollback();
+        try(Session sess = sessionFactory.openSession()) {
+            Transaction tr  = null;
+            try {
+                tr = sess.beginTransaction();
+                sess.createSQLQuery("""
+                create table  if not exists user(
+                    id bigint auto_increment,
+                    name varchar(255) not null,
+                    lastname varchar(255) not null,
+                    age tinyint not null,
+                    constraint user_pk
+                        primary key (id)
+                 );                     
+                """).executeUpdate();
+                sess.flush();
+                tr.commit();
+            }catch(Exception e) {
+                if (tr != null) {
+                    tr.rollback();
+                }
+                throw e;
             }
-            throw e;
         }
     }
 
     @Override
     public void dropUsersTable() {
-        //sess.setHibernateFlushMode(FlushMode.COMMIT);
-        Transaction tr  = null;
-        try (Session sess = sessionFactory.openSession()) {
-            tr = sess.beginTransaction();
-            sess.createSQLQuery(
-                    "drop table if exists user;").executeUpdate();
+        try(Session sess = sessionFactory.openSession()) {
+            Transaction tr  = null;
+            try {
+                tr = sess.beginTransaction();
+                sess.createSQLQuery(
+                        "drop table if exists user;").executeUpdate();
 
-            tr.commit();
-        } catch (Exception e) {
-            if (tr != null) {
-                tr.rollback();
+                tr.commit();
+            } catch (Exception e) {
+                if (tr != null) {
+                    tr.rollback();
+                }
+                throw e;
             }
-            throw e;
         }
 
     }
@@ -66,39 +70,49 @@ public class UserDaoHibernateImpl implements UserDao {
     public void saveUser(String name, String lastName, byte age) {
 
         User aUser = new User(name, lastName, age);
-        Transaction tr  = null;
-        try (Session sess = sessionFactory.openSession()) {
-            tr = sess.beginTransaction();
-            sess.persist(aUser);
-            tr.commit();
-        } catch(Exception e) {
-            if(tr != null ) {
-                tr.rollback();
+        try(Session sess = sessionFactory.openSession()) {
+            Transaction tr  = null;
+            try {
+                tr = sess.beginTransaction();
+                sess.persist(aUser);
+                tr.commit();
+            } catch (PersistenceException e) {
+                System.out.printf("""
+                                Creation of a new record failed due to PersistenceException occurred:%s%n""",
+                        e.getMessage());
+                if (tr != null) {
+                    tr.rollback();
+                }
+
+            }catch(Exception e) {
+                if(tr != null ) {
+                    tr.rollback();
+                }
+                throw e;
             }
-            throw e;
         }
     }
 
     @Override
     public void removeUserById(long id) {
-
-        Transaction tr  = null;
-        try (Session sess = sessionFactory.openSession()) {
-            //sess.setHibernateFlushMode(FlushMode.COMMIT);
-            tr = sess.beginTransaction();
-            User foundUser = sess.get(User.class, id,LockOptions.UPGRADE);
-            if(foundUser != null) {
-                sess.delete(foundUser);
-                tr.commit();
-            }else{
-                System.out.println("No such user found fro id "+id);
-                tr.rollback();
+        try(Session sess = sessionFactory.openSession()) {
+            Transaction tr  = null;
+            try {
+                tr = sess.beginTransaction();
+                User foundUser = sess.get(User.class, id,LockOptions.UPGRADE);
+                if(foundUser != null) {
+                    sess.delete(foundUser);
+                    tr.commit();
+                }else{
+                    System.out.println("No such user found for id:"+id);
+                    tr.rollback();
+                }
+            }catch(Exception e) {
+                if(tr != null) {
+                    tr.rollback();
+                }
+                throw e;
             }
-        }catch(Exception e) {
-            if(tr != null) {
-                tr.rollback();
-            }
-            throw e;
         }
     }
 
@@ -116,20 +130,23 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void cleanUsersTable() {
+        try(Session sess = sessionFactory.openSession()) {
+            Transaction tr  = null;
+            try {
+                tr = sess.beginTransaction();
+                CriteriaDelete<User> cd =  sess.getCriteriaBuilder().createCriteriaDelete(User.class);
+                Root<User> root = cd.from(User.class);
+                Query<User> query = sess.createQuery(cd);
+                query.executeUpdate();
+                sess.flush();
+                tr.commit();
 
-        Transaction tr  = null;
-        try (Session sess = sessionFactory.openSession()) {
-            tr = sess.beginTransaction();
-            sess.createSQLQuery(
-                    "truncate table user;").executeUpdate();
-
-            tr.commit();
-            //sess.clear();
-        }catch(Exception e) {
-            if(tr != null) {
-                tr.rollback();
+            }catch(Exception e) {
+                if (tr != null) {
+                    tr.rollback();
+                }
+                throw e;
             }
-            throw e;
         }
     }
 }

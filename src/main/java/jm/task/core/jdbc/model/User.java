@@ -1,5 +1,4 @@
 package jm.task.core.jdbc.model;
-
 import javax.persistence.*;
 
 @Entity
@@ -7,17 +6,18 @@ import javax.persistence.*;
 
 public class User {
     @Id
-    @Column
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @Column(unique = true)
+
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
-    @Column
+    @Column(nullable = false)
     private String lastName;
 
-    @Column
+    @Column(nullable = false)
     private Byte age;
 
     public User() {
