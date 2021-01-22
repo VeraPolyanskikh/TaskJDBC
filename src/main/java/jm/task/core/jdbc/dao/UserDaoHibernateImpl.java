@@ -2,13 +2,12 @@ package jm.task.core.jdbc.dao;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.Util;
 import org.hibernate.*;
-import org.hibernate.query.Query;
 
 import javax.persistence.PersistenceException;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaDelete;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Root;
+
 
 import java.util.List;
 
@@ -135,9 +134,8 @@ public class UserDaoHibernateImpl implements UserDao {
             try {
                 tr = sess.beginTransaction();
                 CriteriaDelete<User> cd =  sess.getCriteriaBuilder().createCriteriaDelete(User.class);
-                Root<User> root = cd.from(User.class);
-                Query<User> query = sess.createQuery(cd);
-                query.executeUpdate();
+                cd.from(User.class);
+                sess.createQuery(cd).executeUpdate();
                 sess.flush();
                 tr.commit();
 
