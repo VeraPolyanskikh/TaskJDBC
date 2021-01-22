@@ -11,8 +11,7 @@ public class Main {
        us.saveUser("Tom" ,"Hardy", (byte)43);
        us.saveUser("Вася" ,"Пупкин",(byte) 22);
        us.saveUser("Christina" ,"Aguilera",(byte) 40);
-       us.removeUserById(3);
-       us.removeUserById(5);
+
        System.out.println("the content");
        us.getAllUsers().forEach(System.out::println);
        us.cleanUsersTable();

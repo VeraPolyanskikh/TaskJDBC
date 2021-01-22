@@ -19,10 +19,6 @@ import java.util.*;
 
 public class Util{
 
-    public enum Mode {
-        JDBC,
-        HIBERNATE
-    }
     private  static final String DB_URL= "jdbc:mysql://localhost:3306/core_task_schema";
     private  static final String DB_USER = "root";
     private  static final String DB_PASSWORD = "Z@mbezi33";
@@ -64,32 +60,10 @@ public class Util{
                 settings.put(Environment.URL,DB_URL);
                 settings.put(Environment.USER,DB_USER);
                 settings.put(Environment.PASS,DB_PASSWORD);
-                settings.put(Environment.SHOW_SQL,"true");
+                //settings.put(Environment.SHOW_SQL,"true");
                 settings.put(Environment.AUTO_CLOSE_SESSION,"true");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS,"thread");
-               // settings.put(Environment);
-               // settings.put(Environment);
-                /*
-                StandardServiceRegistryBuilder registryBuilder =
-                        new StandardServiceRegistryBuilder();
 
-                Map<String, String> settings = new HashMap<>();
-                settings.put("connection.provider_class","org.hibernate.service.jdbc.connections.internal.C3P0ConnectionProvider");
-                settings.put("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
-                settings.put("hibernate.connection.url", DB_URL);
-                settings.put("hibernate.connection.username", DB_USER);
-                settings.put("hibernate.connection.password", DB_PASSWORD);
-                settings.put("hibernate.show_sql", "true");
-                settings.put("hibernate.hbm2ddl.auto", "update");
-
-                registryBuilder.applySettings(settings);
-                registry = registryBuilder.build();
-                MetadataSources sources = new MetadataSources(registry)
-                        .addAnnotatedClass(User.class);
-
-                sessionFactory = sources.buildMetadata().buildSessionFactory();
-
-                 */
                 conf.setProperties(settings);
                 conf.addAnnotatedClass(User.class);
                 ServiceRegistry serviceRegistry =
@@ -106,7 +80,4 @@ public class Util{
         return sessionFactory;
     }
 
-    public static EntityManagerFactory getEnityManagerFactory(){
-        return Persistence.createEntityManagerFactory("org.hibernate.tutorial.jpa");
-    }
 }
