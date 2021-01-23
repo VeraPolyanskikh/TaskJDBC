@@ -40,7 +40,7 @@ public class UserDaoHibernateImpl implements UserDao {
                 if (tr != null) {
                     tr.rollback();
                 }
-                throw e;
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -52,14 +52,15 @@ public class UserDaoHibernateImpl implements UserDao {
             try {
                 tr = sess.beginTransaction();
                 sess.createSQLQuery(
-                        "drop table if exists user;").executeUpdate();
+                    "drop table if exists user;").executeUpdate();
 
                 tr.commit();
             } catch (Exception e) {
+
                 if (tr != null) {
                     tr.rollback();
                 }
-                throw e;
+                System.out.println(e.getMessage());
             }
         }
 
@@ -77,17 +78,16 @@ public class UserDaoHibernateImpl implements UserDao {
                 tr.commit();
             } catch (PersistenceException e) {
                 System.out.printf("""
-                                Creation of a new record failed due to PersistenceException occurred:%s%n""",
+                    Creation of a new item failed because the object violates the data model:%s%n""",
                         e.getMessage());
                 if (tr != null) {
                     tr.rollback();
                 }
-
             }catch(Exception e) {
                 if(tr != null ) {
                     tr.rollback();
                 }
-                throw e;
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -101,6 +101,7 @@ public class UserDaoHibernateImpl implements UserDao {
                 User foundUser = sess.get(User.class, id,LockOptions.UPGRADE);
                 if(foundUser != null) {
                     sess.delete(foundUser);
+                    sess.flush();
                     tr.commit();
                 }else{
                     System.out.println("No such user found for id:"+id);
@@ -110,7 +111,7 @@ public class UserDaoHibernateImpl implements UserDao {
                 if(tr != null) {
                     tr.rollback();
                 }
-                throw e;
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -133,7 +134,7 @@ public class UserDaoHibernateImpl implements UserDao {
             Transaction tr  = null;
             try {
                 tr = sess.beginTransaction();
-                CriteriaDelete<User> cd =  sess.getCriteriaBuilder().createCriteriaDelete(User.class);
+                CriteriaDelete<User> cd = sess.getCriteriaBuilder().createCriteriaDelete(User.class);
                 cd.from(User.class);
                 sess.createQuery(cd).executeUpdate();
                 sess.flush();
@@ -143,7 +144,7 @@ public class UserDaoHibernateImpl implements UserDao {
                 if (tr != null) {
                     tr.rollback();
                 }
-                throw e;
+                System.out.println(e.getMessage());
             }
         }
     }

@@ -83,10 +83,10 @@ public class UserDaoJDBCImpl implements UserDao {
                 st.executeUpdate();
                 conn.commit();
 
-            }catch(SQLException e) {
+            }catch(SQLIntegrityConstraintViolationException e) {
                 System.out.printf("""
-                        Insertion of a new record failed because the database
-                        constraint has been violated:%s%n""", e.getMessage());
+                    Creation of a new user item failed because the record violates the data model :%s%n""",
+                        e.getMessage());
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
