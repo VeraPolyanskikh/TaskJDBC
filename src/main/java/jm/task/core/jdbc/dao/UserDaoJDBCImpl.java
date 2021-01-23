@@ -36,15 +36,15 @@ public class UserDaoJDBCImpl implements UserDao {
                 conn.commit();
             }
             catch(SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
-                    e2.printStackTrace();
+                    e.addSuppressed(e2);
                 }
             }
         }catch(SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
 
     }
@@ -58,11 +58,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 conn.commit();
 
             }catch(SQLException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
-                    e2.printStackTrace();
+                    e.addSuppressed(e2);
                 }
             }
         }catch(SQLException e) {
@@ -106,6 +106,7 @@ public class UserDaoJDBCImpl implements UserDao {
                 st.executeUpdate();
                 conn.commit();
             }catch(SQLException e) {
+                System.out.println(e.getMessage());
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
@@ -142,12 +143,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 st.executeUpdate("TRUNCATE TABLE user;");
                 conn.commit();
             }catch(SQLException e) {
-
+                System.out.println(e.getMessage());
                 try{
                     conn.rollback();
                 }catch(Exception e2) {
                     e.addSuppressed(e2);
-                    System.out.println(e.getMessage());
                 }
             }
         }catch(SQLException e) {
