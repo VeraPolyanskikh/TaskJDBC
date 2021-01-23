@@ -1,5 +1,6 @@
 package jm.task.core.jdbc.util;
 
+import com.mysql.cj.jdbc.JdbcPropertySetImpl;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import jm.task.core.jdbc.model.User;
 import org.hibernate.SessionFactory;
@@ -18,39 +19,30 @@ import java.util.*;
 
 public class Util{
 
-    private  static final String DB_URL= "jdbc:mysql://localhost:3306/core_task_schema";
-    private  static final String DB_USER = "root";
-    private  static final String DB_PASSWORD = "Z@mbezi33";
+    private static final String DB_URL= "jdbc:mysql://localhost:3306/core_task_schema";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "Z@mbezi33";
 
     private static MysqlDataSource jdbcDataSource;
-
-    private static StandardServiceRegistry registry;
     private static SessionFactory sessionFactory;
 
-    public Connection getConnection() throws SQLException {
-        Connection conn = jdbcDataSource.getConnection();
-        conn.setAutoCommit(false);
-        return conn;
-    }
 
-    public void  setJDBCSource() throws SQLException, ClassNotFoundException {
-
-        Optional<Driver> driver = DriverManager.drivers().findFirst();
-        if(driver.isPresent()) {
-
+    public static MysqlDataSource getJDBCSource() throws SQLException {
+        if(jdbcDataSource == null) {
+            MysqlDataSource ds = new MysqlDataSource();
             jdbcDataSource = new MysqlDataSource();
             jdbcDataSource.setURL(DB_URL);
             jdbcDataSource.setUser(DB_USER);
             jdbcDataSource.setPassword(DB_PASSWORD);
             jdbcDataSource.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        }else{
-            throw new ClassNotFoundException("No driver found!");
         }
+        return jdbcDataSource;
 
     }
 
     public static SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
+            ServiceRegistry serviceRegistry = null;
             try {
 
                 Configuration conf = new Configuration();
@@ -66,14 +58,17 @@ public class Util{
 
                 conf.setProperties(settings);
                 conf.addAnnotatedClass(User.class);
-                ServiceRegistry serviceRegistry =
+                serviceRegistry =
                         new StandardServiceRegistryBuilder().applySettings(settings).build();
                 sessionFactory =  conf.buildSessionFactory(serviceRegistry);
 
             } catch (Exception e) {
                 System.out.println("SessionFactory creation failed");
-                if (registry != null) {
-                    StandardServiceRegistryBuilder.destroy(registry);
+                if (serviceRegistry != null) {
+                    StandardServiceRegistryBuilder.destroy(serviceRegistry);
+                }
+                if (sessionFactory != null) {
+                    sessionFactory.close();
                 }
             }
         }
