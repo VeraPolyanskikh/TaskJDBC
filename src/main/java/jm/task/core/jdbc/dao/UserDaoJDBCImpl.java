@@ -29,26 +29,24 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
                 st.executeUpdate("""
-                create table  if not exists user(
-                    id bigint auto_increment,
-                    name varchar(255) not null,
-                    lastname varchar(255) not null,
-                    age tinyint not null,
-                    constraint user_pk
-                        primary key (id)
-                 );                     
-                """);
+                        create table  if not exists user(
+                            id bigint auto_increment,
+                            name varchar(255) not null,
+                            lastname varchar(255) not null,
+                            age tinyint not null,
+                            constraint user_pk
+                                primary key (id)
+                         );""");
                 conn.commit();
-            }
-            catch(SQLException e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
-                try{
+                try {
                     conn.rollback();
-                }catch(Exception e2) {
+                } catch (Exception e2) {
                     e.addSuppressed(e2);
                 }
             }
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
 
@@ -59,19 +57,19 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
                 st.executeUpdate("""
-                    drop table if exists user;
-                    """);
+                        drop table if exists user;
+                        """);
                 conn.commit();
 
-            }catch(SQLException e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
-                try{
+                try {
                     conn.rollback();
-                }catch(Exception e2) {
+                } catch (Exception e2) {
                     e.addSuppressed(e2);
                 }
             }
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -84,23 +82,23 @@ public class UserDaoJDBCImpl implements UserDao {
                     (name,lastName,age)
                     values(?,?,?);
                     """)) {
-                st.setString(1,name);
-                st.setString(2,lastName);
-                st.setByte(3,age);
+                st.setString(1, name);
+                st.setString(2, lastName);
+                st.setByte(3, age);
                 st.executeUpdate();
                 conn.commit();
 
-            }catch(SQLIntegrityConstraintViolationException e) {
+            } catch (SQLIntegrityConstraintViolationException e) {
                 System.out.printf("""
-                    Creation of a new user item failed because the record violates the data model :%s%n""",
+                                Creation of a new user item failed because the record violates the data model :%s%n""",
                         e.getMessage());
-                try{
+                try {
                     conn.rollback();
-                }catch(Exception e2) {
+                } catch (Exception e2) {
                     e.addSuppressed(e2);
                 }
             }
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
@@ -110,56 +108,56 @@ public class UserDaoJDBCImpl implements UserDao {
             conn.setAutoCommit(false);
             try (PreparedStatement st = conn.prepareStatement(
                     "DELETE FROM user WHERE id=?")) {
-                st.setLong(1,id);
-                st.executeUpdate();
+                st.setLong(1, id);
                 conn.commit();
-            }catch(SQLException e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
-                try{
+                try {
                     conn.rollback();
-                }catch(Exception e2) {
-                   e.addSuppressed(e2);
-                   throw e;
+                } catch (Exception e2) {
+                    e.addSuppressed(e2);
+                    throw e;
                 }
             }
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
 
     public List<User> getAllUsers() {
-        List<User> lst  = new ArrayList<>();
-        try(Connection conn = dataSource.getConnection();
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery("SELECT  * FROM user;")){
-            while(rs.next()) {
+        List<User> lst = new ArrayList<>();
+        try (Connection conn = dataSource.getConnection();
+             PreparedStatement st = conn.prepareStatement("SELECT  * FROM user;")) {
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
                 User user = new User(rs.getString("name"),
-                        rs.getString("lastName"),rs.getByte("age"));
+                        rs.getString("lastName"), rs.getByte("age"));
                 user.setId(rs.getLong("id"));
                 lst.add(user);
             }
-        } catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
         return lst;
 
     }
 
-    public void cleanUsersTable(){
+    public void cleanUsersTable() {
         try (Connection conn = dataSource.getConnection()) {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
+
                 st.executeUpdate("TRUNCATE TABLE user;");
                 conn.commit();
-            }catch(SQLException e) {
+            } catch (SQLException e) {
                 System.out.println(e.getMessage());
-                try{
+                try {
                     conn.rollback();
-                }catch(Exception e2) {
+                } catch (Exception e2) {
                     e.addSuppressed(e2);
                 }
             }
-        }catch(SQLException e) {
+        } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
     }
