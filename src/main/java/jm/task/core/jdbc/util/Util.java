@@ -12,17 +12,19 @@ import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class Util {
+public enum Util {
+
+    INSTANCE;
 
     private static final String DB_URL = "jdbc:mysql://localhost:3306/core_task_schema";
     private static final String DB_USER = "root";
     private static final String DB_PASSWORD = "Z@mbezi33";
 
-    private static MysqlDataSource jdbcDataSource;
-    private static SessionFactory sessionFactory;
+    private  MysqlDataSource jdbcDataSource;
+    private  SessionFactory sessionFactory;
 
 
-    public static MysqlDataSource getJDBCSource() throws SQLException {
+    public  MysqlDataSource getJDBCSource() throws SQLException {
         if (jdbcDataSource == null) {
             MysqlDataSource ds = new MysqlDataSource();
             jdbcDataSource = new MysqlDataSource();
@@ -35,7 +37,7 @@ public class Util {
 
     }
 
-    public static SessionFactory getSessionFactory() {
+    public  SessionFactory getSessionFactory() {
         if (sessionFactory == null) {
             ServiceRegistry serviceRegistry = null;
             try {
@@ -50,7 +52,7 @@ public class Util {
                 settings.put(Environment.AUTO_CLOSE_SESSION, "false");
                 settings.put(Environment.DIALECT, "org.hibernate.dialect.MySQL8Dialect");
                 settings.put(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
-                settings.put(Environment.HBM2DDL_AUTO, "create-drop");
+             //   settings.put(Environment.HBM2DDL_AUTO, "validate");
 
                 conf.setProperties(settings);
                 conf.addAnnotatedClass(User.class);

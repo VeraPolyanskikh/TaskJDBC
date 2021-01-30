@@ -10,22 +10,12 @@ import java.util.List;
 
 public class UserDaoJDBCImpl implements UserDao {
 
-    private static MysqlDataSource dataSource = null;
-
-    static {
-        try {
-            dataSource = Util.getJDBCSource();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     public UserDaoJDBCImpl() {
     }
 
     public void createUsersTable() {
 
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection()) {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
                 st.executeUpdate("""
@@ -53,7 +43,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void dropUsersTable() {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection()) {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
                 st.executeUpdate("""
@@ -75,7 +65,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void saveUser(String name, String lastName, byte age) {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement st = conn.prepareStatement("""
                     insert into user
@@ -104,7 +94,7 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void removeUserById(long id) {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection()) {
             conn.setAutoCommit(false);
             try (PreparedStatement st = conn.prepareStatement(
                     "DELETE FROM user WHERE id=?")) {
@@ -126,7 +116,7 @@ public class UserDaoJDBCImpl implements UserDao {
 
     public List<User> getAllUsers() {
         List<User> lst = new ArrayList<>();
-        try (Connection conn = dataSource.getConnection();
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection();
              PreparedStatement st = conn.prepareStatement("SELECT  * FROM user;")) {
             ResultSet rs = st.executeQuery();
             while (rs.next()) {
@@ -143,12 +133,12 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void cleanUsersTable() {
-        try (Connection conn = dataSource.getConnection()) {
+        try (Connection conn = Util.INSTANCE.getJDBCSource().getConnection()) {
             conn.setAutoCommit(false);
             try (Statement st = conn.createStatement()) {
 
                 st.executeUpdate("TRUNCATE TABLE user;");
-                conn.commit();
+                conn.rollback();
             } catch (SQLException e) {
                 System.out.println(e.getMessage());
                 try {
